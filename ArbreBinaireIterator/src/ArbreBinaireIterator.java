@@ -1,10 +1,12 @@
+import java.util.EmptyStackException;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Stack;
 
 public class ArbreBinaireIterator implements Iterator<ArbreBinaire> {
 
     private ArbreBinaire arbreBinaire;
-    private Stack pile = new Stack();
+    private Stack<ArbreBinaire> pile = new Stack<ArbreBinaire>();
 
     public ArbreBinaireIterator(ArbreBinaire arbreBinaire) {
         this.arbreBinaire = arbreBinaire;
@@ -12,38 +14,43 @@ public class ArbreBinaireIterator implements Iterator<ArbreBinaire> {
 
     @Override
     public boolean hasNext() {
-            if (arbreBinaire.getFilsDroit() != null /*|| arbreBinaire.getFilsDroit() != null*/) {
-            pile.push(arbreBinaire);
+        if (arbreBinaire.getFilsGauche() != null && !arbreBinaire.getFilsGauche().isVisited()) {
             return true;
-        } else {
-            return false;
-            /*arbreBinaire.setVisited(true);
-            arbreBinaire = (ArbreBinaire) pile.peek();
-            if (arbreBinaire.isVisited()) {
-                return false;
-            }
-            return true;*/
         }
+        if (arbreBinaire.getFilsDroit() != null && !arbreBinaire.getFilsDroit().isVisited()) {
+            return true;
+        }
+        Stack<ArbreBinaire> tempPile = pile;
+        ArbreBinaire tempArbre = tempPile.pop();
+        while (tempArbre != null) {
+            if (tempArbre.getFilsDroit() != null && !tempArbre.getFilsDroit().isVisited()) return true;
+            tempArbre = tempPile.pop();
+        }
+        return false;
     }
 
     @Override
     public ArbreBinaire next() {
-        /*ArbreBinaire suivant = null;
-        if(arbreBinaire.getFilsGauche() != null){
-            if(arbreBinaire.getFilsGauche().isVisited()){
-                if(arbreBinaire.getFilsDroit() != null && !arbreBinaire.getFilsDroit().isVisited()){
-                    suivant = arbreBinaire.getFilsDroit();
-                }else{
-                    arbreBinaire.setVisited(true);
-                    pile.pop();
-
-                }
-            }else{
-                suivant = arbreBinaire.getFilsGauche();
+        if (arbreBinaire.getFilsGauche() != null && !arbreBinaire.isVisited()) {
+            pile.push(arbreBinaire);
+            arbreBinaire.setVisited(true);
+            arbreBinaire = arbreBinaire.getFilsGauche();
+            return arbreBinaire;
+        }
+        if (arbreBinaire.getFilsDroit() != null && !arbreBinaire.isVisited()) {
+            pile.push(arbreBinaire);
+            arbreBinaire.setVisited(true);
+            arbreBinaire = arbreBinaire.getFilsDroit();
+            return arbreBinaire;
+        }
+        while (!pile.empty()) {
+            arbreBinaire = pile.pop();
+            if (arbreBinaire.getFilsDroit() != null && !arbreBinaire.getFilsDroit().isVisited()) {
+                pile.push(arbreBinaire);
+                arbreBinaire = arbreBinaire.getFilsDroit();
+                return arbreBinaire;
             }
-            suivant = arbreBinaire.getFilsGauche();
-            System.out.println(arbreBinaire.getFilsGauche().getEtiquette());
-        }*/
-        return arbreBinaire.getFilsDroit();
+        }
+        return null;
     }
 }
